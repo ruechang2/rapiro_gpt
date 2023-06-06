@@ -15,29 +15,9 @@ client.connect((host, port))
 time.sleep(3)
 re_word = re.compile('WORD="([^"]+)"')
 
-def jtalk(t):
-    open_jtalk=['open_jtalk']
-    mech=['-x','/var/lib/mecab/dic/open-jtalk/naist-jdic']
-    # htsvoice=['-m','/usr/share/hts-voice/mei/mei_bashful.htsvoice'] # 女性の声が良い方はこのコメントを外す
-    htsvoice=['-m','/usr/share/hts-voice/nitech-jp-atr503-m001/nitech_jp_atr503_m001.htsvoice']
-    speed=['-r','1.0']
-    quolity=['-a','0.5']
-    toon=['-fm','0.2']
-    yokuyo=['-jf','1.0']
-    outwav=['-ow','test.wav']
-    cmd=open_jtalk+mech+htsvoice+speed+quolity+toon+yokuyo+outwav
-    c = subprocess.Popen(cmd,stdin=subprocess.PIPE)
-    c.stdin.write(t.encode('utf-8'))
-    c.stdin.close()
-    c.wait()
-    aplay = ['aplay','-q','test.wav','-Dhw:0,0']
-    wr = subprocess.Popen(aplay)
 
-    command = b'TERMINATE\n'
-    client.sendall(command)
-    wr.wait()  # 音声再生が終了するまで待機
-    command = b'RESUME\n'
-    client.sendall(command)
+def speak(text):
+    subprocess.run(["espeak", "-ven", "mb/mb-en1", text])
 
 def completion(new_message_text:str, settings_text:str = '', past_messages:list = []):
     if len(past_messages) == 0 and len(settings_text) != 0:
@@ -79,12 +59,12 @@ def dialog():
                 print("messages:",messages)
                 recog_text = ""
                 data = ""
-                jtalk("System reset")
+                speak("System reset")
                 continue
 
             if recog_text in "walk" or "move":
                 # Open the serial connection
-                jtalk("Yes, sir. I'm comming to you")
+                speak("Yes, sir. I'm comming to you")
                 ser = serial.Serial('/dev/ttyUSB0', 9600)  # Replace '/dev/ttyUSB0' with the correct serial port and baud rate
                 # Send motion orders
                 motion_command = 'F'  # Replace 'F' with the desired motion command
@@ -99,7 +79,7 @@ def dialog():
             new_message, messages = completion(recog_text, system_settings, messages)
             print("new_message:",new_message)
 
-            jtalk(new_message)
+            speak(new_message)
             data = ""
     except KeyboardInterrupt:
         print('PROCESS END')
@@ -121,7 +101,7 @@ def main():
 
             print("Recognized:" + recog_text)
             if recog_text == "Jarvis":
-                jtalk("Yes, sir. I'm here for you")
+                speak("Yes, sir. I'm here for you")
                 dialog()
 
             data = ""
