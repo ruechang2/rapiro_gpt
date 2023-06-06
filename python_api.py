@@ -111,7 +111,7 @@ def main():
     data = ""
     try:
         while True:
-            print("音声認識中...")
+            print("Recognizing")
             while(data.find("</RECOGOUT>\n.") == -1):
                 data += str(client.recv(1024).decode('shift_jis'))
 
@@ -119,9 +119,9 @@ def main():
             for word in filter(bool, re_word.findall(data)):
                 recog_text += word
 
-            print("認識結果: " + recog_text)
-            if recog_text == "スタート。":
-                jtalk("システムを起動したよ。")
+            print("Recognized:" + recog_text)
+            if recog_text == "Jarvis":
+                jtalk("Yes, sir. I'm here for you")
                 dialog()
 
             data = ""
