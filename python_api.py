@@ -6,7 +6,7 @@ import time
 import serial
 
 
-openai.api_key = "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"
+openai.api_key = "API-KEY"
 
 host = '127.0.0.1'   
 port = 10500         
