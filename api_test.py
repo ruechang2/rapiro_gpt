@@ -30,7 +30,7 @@ except:
 url = 'https://api.openai.com/v1/engines/text-davinci-002/completions'  # using 'text-davinci-002' model
 headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer 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',
+    'Authorization': 'Bearer OPEN_AI_APIKEY',
 }
 data = {
     'prompt': text,
