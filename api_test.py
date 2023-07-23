@@ -6,6 +6,7 @@ from gtts import gTTS
 import os
 import subprocess
 import serial
+import time
 
 
 # Initialize recognizer class (for recognizing the speech)
@@ -30,7 +31,7 @@ except:
 url = 'https://api.openai.com/v1/engines/text-davinci-002/completions'  # using 'text-davinci-002' model
 headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer OPEN_AI_APIKEY',
+    'Authorization': 'Bearer OPEN_AI_API_KEY',
 }
 data = {
     'prompt': text,
@@ -54,17 +55,66 @@ else:
 tts = gTTS(text=gpt3_response, lang='en')
 tts.save("output.mp3")
 
-if "walk" or "move" in text:
+
+if "walk" in text or "move" in text:
     # Open the serial connection
     subprocess.call(["espeak", "Yes, sir. I'm comming to you"])
-    ser = serial.Serial('/dev/ttyUSB0', 9600)  # Replace '/dev/ttyUSB0' with the correct serial port and baud rate
+    port = '/dev/serial/by-path/platform-3f980000.usb-usb-0:1.3:1.0-port0'
+    ser = serial.Serial('/dev/ttyUSB0', 57600, timeout=3)  # Replace '/dev/ttyUSB0' with the correct serial port and baud rate
     # Send motion orders
-    motion_command = 'F'  # Replace 'F' with the desired motion command
-    ser.write(motion_command.encode())
+    motion_command = '#M1'  # Replace 'F' with the desired motion command
+    ser.write((motion_command + '\n').encode())
+    time.sleep(3)
+    # Close the serial connection
+    ser.close()
+
+
+
+elif "stop" in text:
+    # Open the serial connection
+    subprocess.call(["espeak", "Yes, sir. I stop"])
+    port = '/dev/serial/by-path/platform-3f980000.usb-usb-0:1.3:1.0-port0'
+    ser = serial.Serial('/dev/ttyUSB0', 57600, timeout=3)  # Replace '/dev/ttyUSB0' with the correct serial port and baud rate
+    # Send motion orders
+    motion_command = '#M0'  # Replace 'F' with the desired motion command
+    ser.write((motion_command + '\n').encode())
+    time.sleep(3)
+    # Close the serial connection
+    ser.close()
+
+
+
+elif "wave" in text or "hands" in text:
+    # Open the serial connection
+    subprocess.call(["espeak", "Yes, sir. I'm waving my hands"])
+    port = '/dev/serial/by-path/platform-3f980000.usb-usb-0:1.3:1.0-port0'
+    ser = serial.Serial('/dev/ttyUSB0', 57600, timeout=3)  # Replace '/dev/ttyUSB0' with the correct serial port and baud rate
+    # Send motion orders
+    motion_command = '#M5'  # Replace 'F' with the desired motion command
+    ser.write((motion_command + '\n').encode())
+    time.sleep(3)
 
     # Close the serial connection
     ser.close()
+
+
+
+elif "dance" in text:
+    # Open the serial connection
+    subprocess.call(["espeak", "Yes, sir. I'm dancing for you"])
+    port = '/dev/serial/by-path/platform-3f980000.usb-usb-0:1.3:1.0-port0'
+    # Replace '/dev/ttyUSB0' with the correct serial port and baud rate
+    # Send motion orders
+    motion_commands = ['#M6', '#M8']
+    for i in range(20):
+        ser = serial.Serial('/dev/ttyUSB0', 57600, timeout=1)
+        order = i % 2
+        ser.write((motion_commands[order] + '\n').encode())
+        time.sleep(1)
+    # Close the serial connection
+    ser.close()
+
+
 else:
     # use espeak to output the speech
     subprocess.call(["espeak", gpt3_response])
-
